@@ -16,9 +16,43 @@ router.get('/', (req, res) => {
 
 router.post('/personal', upload.none(), (req, res) => {
 
-    console.log(req.body);
-    //const dataFF = req.body;
-    res.json({status: 'ok'})
+    const schema = {
+        type: 'object',
+        properties: {
+            name: {
+                type: 'string',
+                minLength: 2,
+                maxLength: 20
+            },
+            surname: {
+                type: 'string',
+                maxLength: 20
+            },
+            age: {
+                type: 'integer'   
+            },
+            email: {
+                type: 'string',
+                pattern: '^[a-z0-9_-]+@[a-z0-9]+\.[a-z]{2,6}$'
+            },
+            phone: {
+                type: 'string',
+                pattern: '^\\+380[0-9]{9}$'
+            }
+        },
+        required: ['name', 'email', 'phone'],
+        additionalProperties: false,
+    };
+    let data = req.body;
+
+    const validate = ajv.compile(schema);
+    const valid = validate(data);
+
+    if (!valid){
+        res.json(validate.errors[0].message);
+    }else{
+        res.json('validated!');
+    }
 
 });
 
